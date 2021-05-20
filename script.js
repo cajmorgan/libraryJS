@@ -2,34 +2,95 @@
     const books = document.querySelector('.books');
     const addBtn = document.querySelector('.add');
     const btn = document.querySelector('button');
-    let bNum = 0;
+    if(localStorage.length != 0) {
+        bNum = parseInt(localStorage.getItem('num'));
+    } else {
+        bNum = 0;
+    }
     
 let library = [];
+
+if(localStorage.length != 0) {
+    for (let i = 1; i <= parseInt(localStorage.getItem('num')) + 1; i++) { 
+        let storedBook = JSON.parse(localStorage.getItem("book" + i));
+        // console.log(localStorage);
+        if(storedBook != null) {
+            library.push(storedBook);
+        } else {
+            continue;
+        }
+        console.log(storedBook)
+    }
+    showSavedBooks();
+}
+
+function showSavedBooks() {
+    for(i = 0; i < library.length; i++) {
+    let book = document.createElement('div')
+    book.classList.add('book');
+    book.setAttribute('id', `book${library[i].num}`)
+    book.innerHTML = `<img src="./images/lotr.jpg" width="200" height="300"><span>Title: ${library[i].title}</span> 
+    <span>Author: ${library[i].author}</span> 
+    <span>Pages: ${library[i].pages}</span> 
+    <button id="readBtn" class="status" value="${library[i].num}">${library[i].read}</button>
+    <button id="delete" value="${library[i].num}">Delete</button>
+    `
+    books.appendChild(book);
+    const statusBtn = document.querySelectorAll('.status');
+        for(j = 0; j < statusBtn.length; j++) {
+            if(statusBtn[j].textContent == "Read") {
+                statusBtn[j].style.backgroundColor = "#32CD32";
+            } else {
+                statusBtn[j].style.backgroundColor = "white";
+            }
+        }
+    }
+}
 
 function showBooks() {
         let book = document.createElement('div')
         book.classList.add('book');
         book.setAttribute('id', `book${bNum}`)
-        book.innerHTML = `<span>Title: ${library[0].title}</span> 
-        <span>Author: ${library[0].author}</span> 
-        <span>Pages: ${library[0].pages}</span> 
-        <button id="readBtn" class="status" value="${bNum}">${library[0].read}</button>
+        book.innerHTML = `<img src="./images/lotr.jpg" width="200" height="300"><span>Title: ${library[library.length-1].title}</span> 
+        <span>Author: ${library[library.length-1].author}</span> 
+        <span>Pages: ${library[library.length-1].pages}</span> 
+        <button id="readBtn" class="status" value="${bNum}">${library[library.length-1].read}</button>
         <button id="delete" value="${bNum}">Delete</button>
         `
         books.appendChild(book);
+        const statusBtn = document.querySelectorAll('.status');
+        for(i = 0; i < statusBtn.length; i++) {
+        if(statusBtn[i].textContent == "Read") {
+            statusBtn[i].style.backgroundColor = "#32CD32";
+        } else {
+            statusBtn[i].style.backgroundColor = "white";
+        }
+    }
 }
 
 function readChange(e) {
     if(e.target.id == "readBtn") {
+        console.log('test')
         const status = document.querySelectorAll('.status')
-        for(i = 0; i < status.length; i++) {
-            if(status[i].value === e.target.value) {
+        for(i = 0; i < library.length; i++) {
+            if(library[i].num == e.target.value) {
                 if(library[i].read == "Read") {
                     library[i].read = "Not Read";
                     e.target.textContent = library[i].read;
-                } else if(library[i].read == "Not Read") {
+                    e.target.style.backgroundColor = "white";
+                    //Change Local Storage
+                    let changeObj = JSON.parse(localStorage.getItem(`book${library[i].num}`));
+                    changeObj.read = "Not Read";
+                    localStorage.setItem(`book${library[i].num}`, JSON.stringify(changeObj));
+
+                } else if (library[i].read == "Not Read") {
                     library[i].read = "Read";
                     e.target.textContent = library[i].read;
+                    e.target.style.backgroundColor = "#32CD32";
+                    //Change Local Storage
+                    let changeObj = JSON.parse(localStorage.getItem(`book${library[i].num}`));
+                    changeObj.read = "Read";
+                    localStorage.setItem(`book${library[i].num}`, JSON.stringify(changeObj));
                 }
             }
         }
@@ -38,14 +99,17 @@ function readChange(e) {
 
 }
 document.addEventListener('click', readChange)
+
 function deleteBook(e) {
     if(e.target.id == "delete") {
     for(i = 0; i < library.length; i++) {
         if(e.target.value == library[i].num) {
            library.splice(library.indexOf(library[i]), 1);
+            localStorage.removeItem("book" + e.target.value);
+            console.log(e.target.value);
         }
     }
-    const deleter = document.querySelectorAll('.book');  
+    const deleter = document.querySelectorAll('.book'); 
     for(i = 0; i < deleter.length; i++) {
         if(deleter[i].id == 'book' + e.target.value) {
             books.removeChild(deleter[i]);
@@ -77,6 +141,7 @@ class Book {
 
 function addBookToLibrary(book) { 
     bNum += 1;
+    localStorage.setItem('num', bNum);
     const title = document.querySelector('#title').value;
     const author = document.querySelector('#author').value;
     const pages = document.querySelector('#pages').value;
@@ -86,8 +151,10 @@ function addBookToLibrary(book) {
     if(title == "" || author == "" || pages == "") {
         return alert('You need to fill in Title, Author and Pages!')
     }
+    document.querySelector('.popUp').style.display = "none";
     book = new Book(title, author, pages, read.value, bNum);
-    library.unshift(book);
+    localStorage.setItem("book" + bNum, JSON.stringify(book))
+    library.push(book);
     reset(); 
     showBooks();
     // console.log(book)
@@ -95,7 +162,7 @@ function addBookToLibrary(book) {
 }
 
 function reset() {
-    // document.querySelector('#read').checked = false;
+    document.querySelector('#read').checked = false;
     const input = document.querySelectorAll('.input');
     for(i = 0; i < input.length; i++) {
         input[i].value = "";
@@ -104,3 +171,12 @@ function reset() {
 }
 
 addBtn.addEventListener('click', addBookToLibrary)
+
+
+
+function popIt() {
+    document.querySelector('.popUp').style.display = "flex";
+}
+
+const addBookBtn = document.querySelector('.addBook');
+addBookBtn.addEventListener('click', popIt)
