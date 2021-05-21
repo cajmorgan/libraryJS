@@ -29,7 +29,7 @@ function showSavedBooks() {
     let book = document.createElement('div')
     book.classList.add('book');
     book.setAttribute('id', `book${library[i].num}`)
-    book.innerHTML = `<img src="./images/lotr.jpg" width="200" height="300"><span>Title: ${library[i].title}</span> 
+    book.innerHTML = `<img src="${library[i].img}" width="200" height="300"><span>Title: ${library[i].title}</span> 
     <span>Author: ${library[i].author}</span> 
     <span>Pages: ${library[i].pages}</span> 
     <button id="readBtn" class="status" value="${library[i].num}">${library[i].read}</button>
@@ -51,7 +51,7 @@ function showBooks() {
         let book = document.createElement('div')
         book.classList.add('book');
         book.setAttribute('id', `book${bNum}`)
-        book.innerHTML = `<img src="./images/lotr.jpg" width="200" height="300"><span>Title: ${library[library.length-1].title}</span> 
+        book.innerHTML = `<img src="${library[library.length-1].img}" width="200" height="300"><span>Title: ${library[library.length-1].title}</span> 
         <span>Author: ${library[library.length-1].author}</span> 
         <span>Pages: ${library[library.length-1].pages}</span> 
         <button id="readBtn" class="status" value="${bNum}">${library[library.length-1].read}</button>
@@ -124,12 +124,13 @@ document.addEventListener('click', deleteBook)
 
 
 class Book {
-  constructor(title, author, pages, read, num) {
+  constructor(title, author, pages, read, num, img) {
     this.title = title;
     this.author = author;
     this.pages = pages;
     this.read = read; 
     this.num = num;
+    this.img = img;
   }
   info = function() {
     return "The Book's Title is " + this.title + 
@@ -139,6 +140,33 @@ class Book {
   
 }
 
+function addExamples(book) {
+    if(bNum < 3) { 
+    for(i = 1; i <= 3; i++) {
+        bNum += 1;
+        localStorage.setItem('num', bNum);
+        if(i === 1) {
+            book = new Book('Lord of The Rings', 'J.R.R Tolkien', '1178', 'Read', bNum, 'images/lotr.jpg');
+            localStorage.setItem("book" + bNum, JSON.stringify(book))
+            library.push(book);
+            showBooks();
+        } else if (i === 2) {
+            book = new Book('Game of Thrones', 'George R.R Martin', '694', 'Read', bNum, 'images/got.jpg');
+            localStorage.setItem("book" + bNum, JSON.stringify(book))
+            library.push(book);
+            showBooks();
+        } else if (i === 3) {
+            book = new Book('Javascript for Beginners', 'Stephen .B', '122', 'Not Read', bNum, 'images/javascript.jpg');
+            localStorage.setItem("book" + bNum, JSON.stringify(book))
+            library.push(book);
+            showBooks();
+        }
+        }
+    }
+}
+
+addExamples();
+
 function addBookToLibrary(book) { 
     bNum += 1;
     localStorage.setItem('num', bNum);
@@ -146,13 +174,17 @@ function addBookToLibrary(book) {
     const author = document.querySelector('#author').value;
     const pages = document.querySelector('#pages').value;
     const read = document.querySelector('#read');
+    let imgUrl = document.querySelector('#imgSrc').value;
+    if(imgUrl == "") {
+        imgUrl = "images/dummy.jpg";
+    }
     (read.checked == true) ? read.value = "Read" : read.value = "Not Read";
     console.log(read);
     if(title == "" || author == "" || pages == "") {
         return alert('You need to fill in Title, Author and Pages!')
     }
     document.querySelector('.popUp').style.display = "none";
-    book = new Book(title, author, pages, read.value, bNum);
+    book = new Book(title, author, pages, read.value, bNum, imgUrl);
     localStorage.setItem("book" + bNum, JSON.stringify(book))
     library.push(book);
     reset(); 
