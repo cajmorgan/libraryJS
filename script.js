@@ -156,7 +156,7 @@ function addExamples(book) {
             library.push(book);
             showBooks();
         } else if (i === 3) {
-            book = new Book('Javascript for Beginners', 'Stephen .B', '122', 'Not Read', bNum, 'images/javascript.jpg');
+            book = new Book('Harry Potter and the Half-Blood Prince', 'J.K Rowling', '672', 'Not Read', bNum, 'images/harrypotter.jpg');
             localStorage.setItem("book" + bNum, JSON.stringify(book))
             library.push(book);
             showBooks();
